@@ -657,7 +657,7 @@ if __name__ == "__main__":
     parser.add_argument('location', help="location to extract")
     parser.add_argument('-c', '--clobber', action='store_true', default=False)
     parser.add_argument('--datadir', default='/tmp/ZTF')
-    parser.add_argument('--workers', default=15)
+    parser.add_argument('--workers', type=int, default=15)
 
     args = parser.parse_args()
 
