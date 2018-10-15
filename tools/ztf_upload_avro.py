@@ -17,7 +17,7 @@ import shutil
 import numpy as np
 import pandas as pd
 import copy
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor as Executor
 import multiprocessing as mp
 import itertools
 import requests
@@ -59,6 +59,8 @@ Simbad.TIMEOUT = 5
 customSimbad = Simbad()
 customSimbad.add_votable_fields('otype', 'sp', 'pm', "v*")
 customGaia = Vizier(columns=["*", "+_r"], catalog="I/345/gaia2")
+
+basedir = Path(os.path.dirname(__file__))/'..'
 
 
 class ZTFAvro():
@@ -304,8 +306,8 @@ class ZTFAvro():
                 DBSession().add(t)
                 stamp = packet['cutout{}'.format(ztftype)]['stampData']
 
-                if (not os.path.exists(self.ztfpack.basedir/f'static/thumbnails/{packet["objectId"]}/{fname}') or \
-                    not os.path.exists(self.ztfpack.basedir/f'static/thumbnails/{packet["objectId"]}/{gzname}')) and \
+                if (not os.path.exists(basedir/f'static/thumbnails/{packet["objectId"]}/{fname}') or \
+                    not os.path.exists(basedir/f'static/thumbnails/{packet["objectId"]}/{gzname}')) and \
                     not self.clobber:
                     with gzip.open(io.BytesIO(stamp), 'rb') as f:
                         gz = open(f"/tmp/{gzname}", "wb")
@@ -317,10 +319,10 @@ class ZTFAvro():
                             ffig = aplpy.FITSFigure(hdul[0])
                             ffig.show_grayscale(stretch='arcsinh', invert=True) #ztftype != 'Difference')
                             ffig.save(f"/tmp/{fname}")
-                    if not os.path.exists(self.ztfpack.basedir/f'static/thumbnails/{packet["objectId"]}'):
-                        os.makedirs(self.ztfpack.basedir/f'static/thumbnails/{packet["objectId"]}')
-                    shutil.copy(f"/tmp/{fname}", self.ztfpack.basedir/f'static/thumbnails/{packet["objectId"]}/{fname}')
-                    shutil.copy(f"/tmp/{gzname}", self.ztfpack.basedir/f'static/thumbnails/{packet["objectId"]}/{gzname}')
+                    if not os.path.exists(basedir/f'static/thumbnails/{packet["objectId"]}'):
+                        os.makedirs(basedir/f'static/thumbnails/{packet["objectId"]}')
+                    shutil.copy(f"/tmp/{fname}", basedir/f'static/thumbnails/{packet["objectId"]}/{fname}')
+                    shutil.copy(f"/tmp/{gzname}", basedir/f'static/thumbnails/{packet["objectId"]}/{gzname}')
 
             try:
                 s.add_linked_thumbnails()
@@ -507,7 +509,6 @@ class ZTFPack():
         create_telescope=True
         """
 
-        self._connect()
         self.username = username
 
         self.g = Group.query.filter(Group.name == groupname).first()
@@ -565,14 +566,6 @@ class ZTFPack():
 
         DBSession().commit()
 
-    def _connect(self):
-        env, cfg = load_env()
-        self.basedir = Path(os.path.dirname(__file__))/'..'
-        (self.basedir/'static/thumbnails').mkdir(parents=True, exist_ok=True)
-
-        with status(f"Connecting to database {cfg['database']['database']}"):
-            init_db(**cfg['database'])
-
 
 class LoadPTF:
 
@@ -593,7 +586,7 @@ class LoadPTF:
     def runp(self):
 
         self.i = 0
-        with ProcessPoolExecutor(max_workers=self.nproc) as executor:
+        with Executor(max_workers=self.nproc) as executor:
             avro_files = list(self.avro_dir.glob("*.avro"))
             print(f"Number of files: {len(avro_files)}")
             if self.maxfiles is not None and not isinstance(self.maxfiles, str):
@@ -660,6 +653,12 @@ if __name__ == "__main__":
     parser.add_argument('--workers', type=int, default=15)
 
     args = parser.parse_args()
+
+    env, cfg = load_env()
+    (basedir/'static/thumbnails').mkdir(parents=True, exist_ok=True)
+
+    with status(f"Connecting to database {cfg['database']['database']}"):
+        init_db(**cfg['database'])
 
     if not os.path.exists(args.location) and args.location.find("http") == -1:
         print(f"{args.location} does not exist")
