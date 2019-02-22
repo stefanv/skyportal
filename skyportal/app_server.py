@@ -9,7 +9,7 @@ from skyportal.handlers import (SourceHandler, CommentHandler, GroupHandler,
                                 PlotSpectroscopyHandler, ProfileHandler,
                                 BecomeUserHandler, LogoutHandler,
                                 PhotometryHandler, TokenHandler)
-from skyportal import models, model_util
+from skyportal import models, model_util, schema, openapi
 
 
 def make_app(cfg, baselayer_handlers, baselayer_settings):
@@ -33,7 +33,7 @@ def make_app(cfg, baselayer_handlers, baselayer_settings):
         print('  in the configuration file!')
         print('!' * 80)
 
-    handlers = baselayer_handlers + [
+    skyportal_handlers = [
         # API endpoints
         (r'/api/sources(/.*)?', SourceHandler),
         (r'/api/groups/(.*)/users/(.*)?', GroupUserHandler),
@@ -55,6 +55,7 @@ def make_app(cfg, baselayer_handlers, baselayer_settings):
                                    # Refer to Main.jsx for routing info.
     ]
 
+    handlers = baselayer_handlers + skyportal_handlers
     settings = baselayer_settings
     settings.update({})  # Specify any additional settings here
 
@@ -63,5 +64,7 @@ def make_app(cfg, baselayer_handlers, baselayer_settings):
     model_util.create_tables()
     model_util.setup_permissions()
     app.cfg = cfg
+
+    app.openapi_spec = openapi.spec_from_handlers(handlers)
 
     return app
