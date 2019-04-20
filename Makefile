@@ -12,19 +12,17 @@ help:
 	@echo -e "  To $(BOLD)start$(NORMAL) the web application, do \`make run\`."
 	@echo -e "  To $(BOLD)customize$(NORMAL) the configuration, edit \`config.yaml.defaults\`."
 	@echo
-	@echo Please choose one of the following make targets:
-	@echo
-	@$(MAKE) --no-print-directory -C . -f baselayer/Makefile help
+	@echo Please choose one of the following make targets.
+	@python ./baselayer/tools/makefile_to_help.py Baselayer:baselayer/Makefile SkyPortal:Makefile
 
 baselayer/Makefile:
 	git submodule update --init --remote
 
-docker-images: docker-local
-	@# Add --no-cache flag to rebuild from scratch
-	cd baselayer && git submodule update --init --remote
-	docker build -t skyportal/web . && docker push skyportal/web
+load_demo_data: ## Import demonstration data sources
+load_demo_data: | dependencies
+	@PYTHONPATH=. python tools/load_demo_data.py
 
-docker-local:
+docker: ## Build docker image
 	@echo "!! WARNING !! The current directory will be bundled inside of"
 	@echo "              the Docker image.  Make sure you have no passwords"
 	@echo "              or tokens in configuration files before continuing!"
@@ -33,6 +31,12 @@ docker-local:
 	@read
 	cd baselayer && git submodule update --init --remote
 	docker build -t skyportal/web .
+
+docker-push: ## Push docker image to repository
+docker-push: docker
+	@# Add --no-cache flag to rebuild from scratch
+	cd baselayer && git submodule update --init --remote
+	docker build -t skyportal/web . && docker push skyportal/web
 
 doc_reqs:
 	pip install -q -r requirements.docs.txt
@@ -43,11 +47,9 @@ api-docs: | doc_reqs
 	mkdir -p doc/_build/html
 	mv redoc-static.html doc/openapi.html
 
+docs: ## Build documentation
 docs: | doc_reqs api-docs
 	export SPHINXOPTS=-W; make -C doc html
-
-load_demo_data: | dependencies
-	@PYTHONPATH=. python tools/load_demo_data.py
 
 # https://www.gnu.org/software/make/manual/html_node/Overriding-Makefiles.html
 %: baselayer/Makefile force
