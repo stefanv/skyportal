@@ -156,4 +156,21 @@ taxonomies:
     groups:
       - Program A
       - Program B
+  - name: Microlensing Taxonomy
+    hierarchy:
+      class: Time-domain Source
+      subclasses:
+        - class: microlensing
+          tags: [stellar lensing, gravitational lensing]
+          subclasses:
+            - class: binary lens
+              subclass:
+                - class: lens with planet
+            - class: triple-system lens
+            - class: binary source
+    version: latest
+    provenance: https://github.com/profjsb/timedomain-taxonomy
+    token: "load_demo_data token"
+    groups:
+      - Program A
 

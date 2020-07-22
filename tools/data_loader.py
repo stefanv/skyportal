@@ -163,7 +163,7 @@ if __name__ == "__main__":
                         name = tax["name"]
                         provenance = tax.get("provenance")
 
-                        if tax["tdtax"]:
+                        if tax.get("tdtax", False):
                             hierarchy = tdtax.taxonomy
                             version = tdtax.__version__
                         else:
