@@ -148,7 +148,21 @@ sources:
       sub: skyportal/tests/data/16fil_sub.png
     token: "load_demo_data token"
 taxonomies:
-  - name: Demo taxonomy
+  - name: Simple Taxonomy
+    hierarchy:
+      class: Time-domain Source
+      subclasses:
+        - class: roid
+        - class: varstar
+        - class: transient
+        - class: AGN
+        - class: artifact
+    version: latest
+    token: "load_demo_data token"
+    groups:
+      - Program A
+      - Program B
+  - name: Full taxonomy
     tdtax: true
     version: latest
     provenance: https://github.com/profjsb/timedomain-taxonomy
