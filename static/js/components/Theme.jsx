@@ -17,6 +17,16 @@ const Theme = ({ children }) => {
       // So we have `transition: none;` everywhere
       create: () => "none",
     },
+    overrides: {
+      MuiCssBaseline: {
+        "@global": {
+          "*, *::before, *::after": {
+            transition: "none !important",
+            animation: "none !important",
+          },
+        },
+      },
+    },
   });
 
   return (
