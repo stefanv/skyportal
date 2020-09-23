@@ -13,6 +13,20 @@ const Theme = ({ children }) => {
       background:
         theme === "dark" ? { default: "#303030" } : { default: "#f0f2f5" },
     },
+    transitions: {
+      // So we have `transition: none;` everywhere
+      create: () => "none",
+    },
+    overrides: {
+      MuiCssBaseline: {
+        "@global": {
+          "*, *::before, *::after": {
+            transition: "none !important",
+            animation: "none !important",
+          },
+        },
+      },
+    },
   });
 
   return (
