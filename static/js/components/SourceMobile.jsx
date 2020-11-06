@@ -15,7 +15,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 
-import Plot from "./Plot";
 import CommentListMobile from "./CommentListMobile";
 import ClassificationList from "./ClassificationList";
 import ClassificationForm from "./ClassificationForm";
@@ -35,6 +34,8 @@ import UpdateSourceRedshift from "./UpdateSourceRedshift";
 import SourceRedshiftHistory from "./SourceRedshiftHistory";
 import ObjPageAnnotations from "./ObjPageAnnotations";
 import SourceSaveHistory from "./SourceSaveHistory";
+
+const Plot = React.lazy(() => import(/* webpackChunkName: "Bokeh" */ "./Plot"));
 
 const CentroidPlot = React.lazy(() =>
   import(/* webpackChunkName: "CentroidPlot" */ "./CentroidPlot")
@@ -314,10 +315,12 @@ const SourceMobile = ({ source }) => {
             </AccordionSummary>
             <AccordionDetails>
               <div className={classes.photometryContainer}>
-                <Plot
-                  className={classes.plot}
-                  url={`/api/internal/plot/photometry/${source.id}`}
-                />
+                <Suspense fallback={<div>Loading photometry plot...</div>}>
+                  <Plot
+                    className={classes.plot}
+                    url={`/api/internal/plot/photometry/${source.id}`}
+                  />
+                </Suspense>
                 <div>
                   <Link to={`/upload_photometry/${source.id}`} role="link">
                     <Button variant="contained">
@@ -345,10 +348,12 @@ const SourceMobile = ({ source }) => {
             </AccordionSummary>
             <AccordionDetails>
               <div className={classes.photometryContainer}>
-                <Plot
-                  className={classes.plot}
-                  url={`/api/internal/plot/spectroscopy/${source.id}`}
-                />
+                <Suspense fallback={<div>Loading spectroscopy plot...</div>}>
+                  <Plot
+                    className={classes.plot}
+                    url={`/api/internal/plot/spectroscopy/${source.id}`}
+                  />
+                </Suspense>
                 <Link to={`/share_data/${source.id}`} role="link">
                   <Button variant="contained">Share data</Button>
                 </Link>

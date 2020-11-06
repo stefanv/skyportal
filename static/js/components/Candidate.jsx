@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -9,7 +9,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
-import Plot from "./Plot";
 import CommentList from "./CommentList";
 import ThumbnailList from "./ThumbnailList";
 import SurveyLinkList from "./SurveyLinkList";
@@ -19,6 +18,8 @@ import ObjPageAnnotations from "./ObjPageAnnotations";
 import { ra_to_hours, dec_to_dms } from "../units";
 
 import fetchCandidate from "../ducks/candidate";
+
+const Plot = React.lazy(() => import(/* webpackChunkName: "Bokeh" */ "./Plot"));
 
 export const useStyles = makeStyles(() => ({
   topRow: {
@@ -162,10 +163,12 @@ const Candidate = ({ route }) => {
               </AccordionSummary>
               <AccordionDetails>
                 <div className={classes.photometryContainer}>
-                  <Plot
-                    className={classes.plot}
-                    url={`/api/internal/plot/photometry/${candidate.id}`}
-                  />
+                  <Suspense fallback={<div>Loading photometry plot...</div>}>
+                    <Plot
+                      className={classes.plot}
+                      url={`/api/internal/plot/photometry/${candidate.id}`}
+                    />
+                  </Suspense>
                 </div>
               </AccordionDetails>
             </Accordion>
@@ -183,10 +186,12 @@ const Candidate = ({ route }) => {
               </AccordionSummary>
               <AccordionDetails>
                 <div className={classes.photometryContainer}>
-                  <Plot
-                    className={classes.plot}
-                    url={`/api/internal/plot/spectroscopy/${candidate.id}`}
-                  />
+                  <Suspense fallback={<div>Loading spectroscopy plot...</div>}>
+                    <Plot
+                      className={classes.plot}
+                      url={`/api/internal/plot/spectroscopy/${candidate.id}`}
+                    />
+                  </Suspense>
                 </div>
               </AccordionDetails>
             </Accordion>
