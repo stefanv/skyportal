@@ -80,10 +80,6 @@ export const useSourceStyles = makeStyles((theme) => ({
     paddingBottom: "0.25em",
     display: "inline-block",
   },
-  plot: {
-    width: "900px",
-    overflow: "auto",
-  },
   smallPlot: {
     width: "350px",
     overflow: "auto",
@@ -95,12 +91,6 @@ export const useSourceStyles = makeStyles((theme) => ({
     paddingBottom: "0.5rem",
     "& div button": {
       margin: "0.5rem",
-    },
-    "& .bk-bs-nav": {
-      marginTop: "0px",
-    },
-    "& .bk-plotdiv > .bk-widget": {
-      marginTop: "0px",
     },
   },
   comments: {
@@ -317,8 +307,7 @@ const SourceMobile = ({ source }) => {
               <div className={classes.photometryContainer}>
                 <Suspense fallback={<div>Loading photometry plot...</div>}>
                   <Plot
-                    className={classes.plot}
-                    url={`/api/internal/plot/photometry/${source.id}`}
+                    url={`/api/internal/plot/photometry/${source.id}?width=500&height=300`}
                   />
                 </Suspense>
                 <div>
@@ -350,8 +339,7 @@ const SourceMobile = ({ source }) => {
               <div className={classes.photometryContainer}>
                 <Suspense fallback={<div>Loading spectroscopy plot...</div>}>
                   <Plot
-                    className={classes.plot}
-                    url={`/api/internal/plot/spectroscopy/${source.id}`}
+                    url={`/api/internal/plot/spectroscopy/${source.id}?width=500&height=300`}
                   />
                 </Suspense>
                 <Link to={`/share_data/${source.id}`} role="link">
