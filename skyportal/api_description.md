@@ -8,9 +8,6 @@ inside of `.tokens.yaml`.
 
 Once you have a token, you may access SkyPortal programmatically as
 follows.
-Any JSON request body parameters (all parameters listed under
-"REQUEST BODY SCHEMA: application/json" in API docs below) must be
-passed in to `requests.request` to the `json` keyword argument as below.
 
 #### Python
 
@@ -37,40 +34,53 @@ if response.status_code in (200, 400):
 curl -s -H 'Authorization: token ea70a5f0-b321-43c6-96a1-b2de225e0339' http://localhost:5000/api/sysinfo
 ```
 
-#### Using query parameters (specified as "PATH PARAMETERS" in API docs below)
+### Request parameters
+
+There are two ways to pass information along with a request: path and body parameters.
+
+#### Path parameters
+
+Path parameters (also called query or URL parameters) are embedded in
+the URL called. For example, you can specify `numPerPage` or
+`pageNumber` path parameters when calling `/api/candidates` as
+follows:
+
+```shell
+curl -s -H 'Authorization: token ea70a5f0-b321-43c6-96a1-b2de225e0339' \
+     http://localhost:5000/api/candidates?numPerPage=100&pageNumber=1
+```
+
+When using Python's `requests` library, a dictionary of path
+parameters can be passed in via the `params` keyword argument:
 
 ```python
-import requests
-
 token = 'ea70a5f0-b321-43c6-96a1-b2de225e0339'
 
 response = requests.get(
-    'http://localhost:5000/api/candidates?numPerPage=100&pageNumber=1',
-    headers={'Authorization': f'token {token}'}
-)
-
-print(f'HTTP code: {response.status_code}, {response.reason}')
-if response.status_code in (200, 400):
-    print(f'JSON response: {response.json()}')
-```
-
-Alternatively, when using Python's `requests` library, a dictionary
-of query parameters (aka path parameters, or URL parameters) can be
-passed in via the `params` keyword argument, e.g.
-
-```python
-token = 'abc'
-params = {"includeComments": True, includeThumbnails: False}
-response = requests.get(
     "http://localhost:5000/api/sources",
-    params=params,
+    params={"includeComments": True, includeThumbnails: False},
     headers={'Authorization': f'token {token}'},
 )
 ```
 
-Note well the distinction between query/path/URL parameters and request
-body parameters, how they're denoted in the docs below, and the sample
-usage of each in the examples above.
+#### Body parameters
+
+Request body parameters (or simply: the body of the request)
+contains data uploaded to a specific endpoint. These are the
+parameters listed under `REQUEST BODY SCHEMA: application/json` in the
+API docs.
+
+When using Python's `requests` library, body parameters are specified
+using the `json` keyword argument:
+
+```python
+token = 'abc'
+response = requests.put(
+    "http://localhost:5000/api/sources",
+    json={...},
+    headers={'Authorization': f'token {token}'},
+)
+```
 
 ### Response
 
